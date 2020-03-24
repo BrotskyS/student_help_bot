@@ -1,30 +1,9 @@
 import re
 import json
-import mysql.connector
-
-mydb = mysql.connector.connect(
-    host="127.0.0.1",
-    user="root",
-    passwd="root",
-    port='3306',
-	database='telebot'
-
-)
-mycursor = mydb.cursor()
-
-class Message:
-    chat = type('obj', (object,), {'id' : '123'})
-    def __init__(self, m_id, g_id=None, photo=None, caption=''):
-        self.media_group_id = g_id
-        self.message_id = m_id
-        self.caption = caption
-        self.photo = [type('obj', (object,), {'file_id' : photo})] if photo else []
-ml = [
-    Message(55, 334456, 'Awsdfseasdzxc', '05/12'),
-    Message(555, 334456, 'Bdfasdzxc'),
-    Message(536, 4534456, 'Cweaasdqsdzxc', '05/12'),
-    Message(456, 4534456, 'Dweasdzxc'),
-]
+from debug_data import ml
+from db import mycursor, mydb
+import datetime
+from datetime import datetime, timedelta
 
 media = {
     'g_id': None,
@@ -32,61 +11,149 @@ media = {
     'caption': ''
 }
 
+def error(text):
+    print(f'\n\nERROR:\n{text}\n\n')
+
+def InputMediaPhoto(file_id):
+    for m in ml:
+        if m.photo and m.photo[-1].file_id == file_id:
+            return m
+
+def forward_message(to_id, from_id, msg_id):
+    for m in ml:
+        if m.message_id == msg_id:
+            send_message(to_id, m.text)
+            return
+    else:
+        error('MSG id to forward isn\'t exist')
+
+def send_message(chat_id, msg):
+    print(f'\n-----SEND MESSAGE-----\n\nchat_id: {chat_id}\nmessage text: {msg}\n\n')
+
+def send_media_group(chat_id, media_list):
+    print(f'\n-----SEND MEDIA GROUP-----\n\nchat_id: {chat_id}\n')
+    for media in media_list:
+        print(media)
+    print(f'----END MEDIA GROUP----\n\n')
 
 
-def print_mess(chat_id,m):
-    print('message: ', m)
+TOKEN = '1009237691:AAGbCBSJAYBjVMruuTSCFAmNKRKYScvJ6aA'
+date_pattern = re.compile(r'(\d{2}/\d{2})(?:\s+)?$')
+#bot = telebot.TeleBot(TOKEN)
+media = {
+    'g_id': None,
+    'media_list': [],
+    'caption': ''
+}
+
 def m_handler(m):
-    global print_mess
+    print('INCOMING MESSAGE:\n')
+    
     g_id = m.media_group_id
+    
     if g_id:
         f_id = m.photo[-1].file_id
+        
         if media['g_id'] == g_id:
             if f_id not in media['media_list']:
-                media['media_list'].append(f_id)
+                media['media_list'].append(f_id) 
                 if m.caption:
                     media['caption'] = m.caption
         else:
-            print('media_id: ', media['g_id'])
+            print('old media_id (g_id): ', media['g_id'])
+            
             if media['g_id'] != None:
                 save_gallery(m)
                 print('cleared', media)
                 
             media['g_id'] = g_id
-            media['media_list'] = [f_id]
+            media['media_list'] = [f_id]             
             if m.caption:
                 media['caption'] = m.caption
     else:
-        print('hello')
-        save_gallery(m)
-        match = re.search(r'\d{2}/\d{2}$', m.text)
+        print('Обробляємо не галерею \n ')
+        if media['g_id']:
+            save_gallery(m)
+        
+        text = m.text if m.text else m.caption
+        match = re.search(r'^(?:\s+)?(дз)?(?:.*)(\d{2}/\d{2})(?:\s+)?$', text, re.I)
+        
         if match:
-            # add_homework(m, match[0])
-            print_mess(m.chat.id, 'aaaaaaaaabot ')
+            date = match[2]
+            if match[1]:
+                print('Обробляємо виведення дз \n ')
+                print_homework(m, date)
+            else:
+                print('Обробляємо додавання дз \n ')
+                add_homework(m, date)
         else:
-            print_mess(m.chat.id, 'Введіть дату ')
-    print(media, m.caption, '\n\n')
+            send_message(m.chat.id, 'Введіть дату ДЗ')
+
+    print(media, m.caption, '\n\nEND MESSAGE\n\n')
 
 
 def save_gallery(m):
-    global media, print_mess
-    match = re.search(r'\d{2}/\d{2}$', media['caption'])
+    print('save_gallery\n')
+    global media
+    match = date_pattern.search(media['caption'])
     chat_id, msg_id = m.chat.id, m.message_id
+
     if match:
         gallery = json.dumps(media)
         date = match[0]
-        print('save_gallery', media, match, gallery)
+        print('adding to DB', media)
         sql = "INSERT INTO message (msg_id, msg_chat_id, media, date) VALUES (%s, %s, %s, %s)"
         val = (msg_id, chat_id, gallery, date)
         mycursor.execute(sql, val)
         mydb.commit()
     else:
-        print_mess(chat_id, 'Введіть дату')
+        send_message(chat_id, f'введіть дату (save gallery)\ncaption: {media["caption"]}')
+        print('save gallery match: ', match)
+    
     media = {
         'g_id': None,
         'media_list': [],
         'caption': ''
     }
 
+
+def add_homework(m, date):
+    chat_id, msg_id = m.chat.id, m.message_id
+    sql = "INSERT INTO message (msg_id, msg_chat_id, date) VALUES (%s, %s, %s)"
+    val = (msg_id, chat_id, date)
+    mycursor.execute(sql, val)
+    mydb.commit()
+
+
+    
+def print_homework(m, date):
+    mycursor.execute(f"SELECT msg_id, msg_chat_id, media FROM message WHERE date ='{date}'")
+    myresult = mycursor.fetchall()
+    
+    for msg_id, msg_chat_id, media in myresult:
+        if media != None:
+            print('Prind HW data:', msg_id, msg_chat_id, media)
+            print_gallery(m.chat.id, media)
+        else:
+            forward_message(m.chat.id, msg_chat_id, msg_id)
+    
+                
+
+def print_gallery(chat_id, media_json):
+    md = json.loads(media_json)
+    photo_list = []
+    for i in range(len(md['media_list'])):
+        photo = InputMediaPhoto(md['media_list'][i])
+        if i==0:
+            photo.caption = md['caption']
+        photo_list.append(photo)
+    # print(md)
+    send_media_group(chat_id, photo_list)
+
+
+#bot.polling()
+ 
+
 for m in ml:
     m_handler(m)
+

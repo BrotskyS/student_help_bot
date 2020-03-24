@@ -97,7 +97,7 @@ def m_handler(m):
                 if m.caption:
                     media['caption'] = m.caption
         else:
-            print('media_id (g_id): ', media['g_id'])
+            print('old media_id (g_id): ', media['g_id'])
             
             if media['g_id'] != None:
                 save_gallery(m)
@@ -138,7 +138,7 @@ def save_gallery(m):
     if match:
         gallery = json.dumps(media)
         date = match[0]
-        print('save_gallery', media)
+        print('adding to DB', media)
         sql = "INSERT INTO message (msg_id, msg_chat_id, media, date) VALUES (%s, %s, %s, %s)"
         val = (msg_id, chat_id, gallery, date)
         mycursor.execute(sql, val)
