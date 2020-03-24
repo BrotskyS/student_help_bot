@@ -140,14 +140,14 @@ def print_homework(m, date):
                 
 
 def print_gallery(chat_id, media_json):
-    md = json.loads(media_json)
+    fetched_media = json.loads(media_json)
     photo_list = []
-    for i in range(len(md['media_list'])):
-        photo = InputMediaPhoto(md['media_list'][i])
-        if i==0:
-            photo.caption = md['caption']
+    for i in range(len(fetched_media['media_list'])):
+        photo = InputMediaPhoto(fetched_media['media_list'][i])
+        if i == 0:
+            photo.caption = fetched_media['caption']
         photo_list.append(photo)
-    # print(md)
+    # print(fetched_media)
     send_media_group(chat_id, photo_list)
 
 

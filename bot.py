@@ -97,7 +97,8 @@ def m_handler(m):
                 if m.caption:
                     media['caption'] = m.caption
         else:
-            print('old media_id (g_id): ', media['g_id'])
+            print('old media group id: ', media['g_id'])
+            print('current media group id: ', g_id)
             
             if media['g_id'] != None:
                 save_gallery(m)
@@ -108,7 +109,7 @@ def m_handler(m):
             if m.caption:
                 media['caption'] = m.caption
     else:
-        print('Обробляємо не галерею \n ')
+        print('Working not with gallery (media group) \n')
         if media['g_id']:
             save_gallery(m)
         
@@ -118,12 +119,13 @@ def m_handler(m):
         if match:
             date = match[2]
             if match[1]:
-                print('Обробляємо виведення дз \n ')
+                print('Handle printing homework\n')
                 print_homework(m, date)
             else:
-                print('Обробляємо додавання дз \n ')
+                print('Handle adding homework\n')
                 add_homework(m, date)
         else:
+            print('Invalid message format\n')
             bot.send_message(m.chat.id, 'Введіть дату ДЗ')
 
     print(media, m.caption, '\n\nEND MESSAGE\n\n')
@@ -136,9 +138,10 @@ def save_gallery(m):
     chat_id, msg_id = m.chat.id, m.message_id
 
     if match:
+        print('adding to DB', media)
         gallery = json.dumps(media)
         date = match[0]
-        print('adding to DB', media)
+        
         sql = "INSERT INTO message (msg_id, msg_chat_id, media, date) VALUES (%s, %s, %s, %s)"
         val = (msg_id, chat_id, gallery, date)
         mycursor.execute(sql, val)
@@ -166,6 +169,10 @@ def add_homework(m, date):
 def print_homework(m, date):
     mycursor.execute(f"SELECT msg_id, msg_chat_id, media FROM message WHERE date ='{date}'")
     myresult = mycursor.fetchall()
+
+    if len(myresult) == 0:
+        bot.send_message(m.chat.id, 'Немає ДЗ на вказану дату')
+        return
     
     for msg_id, msg_chat_id, media in myresult:
         if media != None:
@@ -173,18 +180,23 @@ def print_homework(m, date):
             print_gallery(m.chat.id, media)
         else:
             bot.forward_message(m.chat.id, msg_chat_id, msg_id)
+
+    
+    print('\n----END PRINT HOMEWORK----\n\n')
     
                 
 
 def print_gallery(chat_id, media_json):
-    md = json.loads(media_json)
+    fetched_media = json.loads(media_json)
     photo_list = []
-    for i in range(len(md['media_list'])):
-        photo = InputMediaPhoto(md['media_list'][i])
-        if i==0:
-            photo.caption = md['caption']
+
+    for i in range(len(fetched_media['media_list'])):
+        photo = InputMediaPhoto(fetched_media['media_list'][i])
+        
+        if i == 0:
+            photo.caption = fetched_media['caption']
         photo_list.append(photo)
-    # print(md)
+    
     bot.send_media_group(chat_id, photo_list)
 
 
