@@ -106,30 +106,13 @@ def m_handler(m):
         g_id = m.media_group_id
         
         if g_id:
-            f_id = m.photo[-1].file_id
-            
-            if media['g_id'] == g_id:
-                if f_id not in media['media_list']:
-                    media['media_list'].append(f_id) 
-                    if m.caption:
-                        media['caption'] = m.caption
-            else:
-                print('old media group id: ', media['g_id'])
-                print('current media group id: ', g_id)
-                
-                if media['g_id'] != None:
-                    save_gallery(m)
-                    print('cleared', media)
-                    
-                media['g_id'] = g_id
-                media['media_list'] = [f_id]             
-                if m.caption:
-                    media['caption'] = m.caption
+            save_photo(m)
+
+            if m.caption:
+                match = date_pattern.search(m.caption)
+                add_album_homework(m, match[0])
         else:
             print('Working not with gallery (media group) \n')
-            if media['g_id']:
-                save_gallery(m)
-            
             text = m.text if m.text else m.caption
             match = re.search(r'^(?:\s+)?(дз)?(?:.*)(\d{2}/\d{2})(?:\s+)?$', text, re.I)
             
@@ -149,32 +132,22 @@ def m_handler(m):
     except:
         bot.send_message(m.chat.id, 'Ой, щось поломалося')
 
-def save_gallery(m):
+def save_photo(m):
+    print('save_photo')
+    sql = "INSERT INTO media (media_group_id, msg_chat_id, file_id, caption) VALUES (%s, %s, %s, %s)"
+    val = (m.media_group_id, m.chat.id, m.photo[-1].file_id, m.caption)
+    mycursor.execute(sql, val)
+    mydb.commit()
+
+def add_album_homework(m, date):
+    print('add_album_homework')
     try:
-
-        print('save_gallery\n')
-        global media
-        match = date_pattern.search(media['caption'])
         chat_id, msg_id = m.chat.id, m.message_id
-
-        if match:
-            print('adding to DB', media)
-            gallery = json.dumps(media)
-            date = match[0]
-            
-            sql = "INSERT INTO message (msg_id, msg_chat_id, media, date) VALUES (%s, %s, %s, %s)"
-            val = (msg_id, chat_id, gallery, date)
-            mycursor.execute(sql, val)
-            mydb.commit()
-        else:
-            bot.send_message(chat_id, f'введіть дату (save gallery)\ncaption: {media["caption"]}')
-            print('save gallery match: ', match)
-        
-        media = {
-            'g_id': None,
-            'media_list': [],
-            'caption': ''
-        }
+        media = json.dumps([m.media_group_id, m.caption])
+        sql = "INSERT INTO message (msg_id, msg_chat_id, media, date) VALUES (%s, %s, %s, %s)"
+        val = (msg_id, chat_id, media, date)
+        mycursor.execute(sql, val)
+        mydb.commit()
     except:
         bot.send_message(m.chat.id, 'Ой, щось поломалося')
 
@@ -202,8 +175,9 @@ def print_homework(m, date):
         
         for msg_id, msg_chat_id, media in myresult:
             if media != None:
+                media_id, caption = json.loads(media)
                 print('Prind HW data:', msg_id, msg_chat_id, media)
-                print_gallery(m.chat.id, media)
+                print_gallery(m.chat.id, media_id, caption)
             else:
                 bot.forward_message(m.chat.id, msg_chat_id, msg_id)
 
@@ -214,15 +188,17 @@ def print_homework(m, date):
         
                 
 
-def print_gallery(chat_id, media_json):
-    fetched_media = json.loads(media_json)
+def print_gallery(chat_id, media_id, caption):
+    mycursor.execute(f"SELECT file_id FROM media WHERE media_group_id ='{media_id}'")
+    myresult = mycursor.fetchall()
     photo_list = []
+    
+    for i in range(len(myresult)):
+        photo = InputMediaPhoto(myresult[i][0])
 
-    for i in range(len(fetched_media['media_list'])):
-        photo = InputMediaPhoto(fetched_media['media_list'][i])
         
         if i == 0:
-            photo.caption = fetched_media['caption']
+            photo.caption = caption
         photo_list.append(photo)
     
     bot.send_media_group(chat_id, photo_list)
