@@ -7,14 +7,11 @@ import datetime
 from datetime import datetime, timedelta
 import json
 
+import faulthandler; faulthandler.enable()
+
 TOKEN = '1009237691:AAGbCBSJAYBjVMruuTSCFAmNKRKYScvJ6aA'
 date_pattern = re.compile(r'(\d{2}/\d{2})(?:\s+)?$')
 bot = telebot.TeleBot(TOKEN)
-media = {
-    'g_id': None,
-    'media_list': [],
-    'caption': ''
-}
 
 @bot.message_handler(commands=['start'])
 def command_start(m):
@@ -100,59 +97,65 @@ def return_HW(m):
 
 @bot.message_handler(content_types=["text", "sticker", "pinned_message", "photo", "audio"])
 def m_handler(m):
-    try:
-        print('INCOMING MESSAGE:\n')
-        
-        g_id = m.media_group_id
-        
-        if g_id:
-            save_photo(m)
+    # try:
+    print('INCOMING MESSAGE:\n')
+    
+    if m.media_group_id:
+        save_photo(m)
 
-            if m.caption:
-                match = date_pattern.search(m.caption)
-                add_album_homework(m, match[0])
-        else:
-            print('Working not with gallery (media group) \n')
-            text = m.text if m.text else m.caption
-            match = re.search(r'^(?:\s+)?(дз)?(?:.*)(\d{2}/\d{2})(?:\s+)?$', text, re.I)
-            
+        if m.caption:
+            match = date_pattern.search(m.caption)
+
             if match:
-                date = match[2]
-                if match[1]:
-                    print('Handle printing homework\n')
-                    print_homework(m, date)
-                else:
-                    print('Handle adding homework\n')
-                    add_homework(m, date)
+                add_homework_gallery(m, match[1])
             else:
-                print('Invalid message format\n')
-                bot.send_message(m.chat.id, 'Введіть дату ДЗ')
+                bot.send_message(m.chat.id, 'Введіть дату ДЗ (add gallery)')
+            
+    else:
+        print('Working not with gallery (media group) \n')
 
-        print(media, m.caption, '\n\nEND MESSAGE\n\n')
-    except:
-        bot.send_message(m.chat.id, 'Ой, щось поломалося')
+        text = m.text if m.text else m.caption
+        match = re.search(r'^(?:\s+)?(дз)?(?:.*)(\d{2}/\d{2})(?:\s+)?$', text, re.I)
+        
+        if match:
+            date = match[2]
+            if match[1]:
+                print('Handle printing homework\n')
+                print_homework(m, date)
+            else:
+                print('Handle adding homework\n')
+                add_homework(m, date)
+        else:
+            print('Invalid message format\n')
+            bot.send_message(m.chat.id, 'Введіть дату ДЗ')
+
+    print('\n\nEND MESSAGE\n\n')
+    # except:
+    #     bot.send_message(m.chat.id, 'Ой, щось поломалося, "m_handler" ')
 
 def save_photo(m):
     print('save_photo')
+
     sql = "INSERT INTO media (media_group_id, msg_chat_id, file_id, caption) VALUES (%s, %s, %s, %s)"
     val = (m.media_group_id, m.chat.id, m.photo[-1].file_id, m.caption)
     mycursor.execute(sql, val)
     mydb.commit()
 
-def add_album_homework(m, date):
-    print('add_album_homework')
-    try:
-        chat_id, msg_id = m.chat.id, m.message_id
-        media = json.dumps([m.media_group_id, m.caption])
-        sql = "INSERT INTO message (msg_id, msg_chat_id, media, date) VALUES (%s, %s, %s, %s)"
-        val = (msg_id, chat_id, media, date)
-        mycursor.execute(sql, val)
-        mydb.commit()
-    except:
-        bot.send_message(m.chat.id, 'Ой, щось поломалося')
+def add_homework_gallery(m, date):
+    print('add_homework_gallery')
+# try:
+    chat_id, msg_id = m.chat.id, m.message_id
+    media = json.dumps([m.media_group_id, m.caption])
+    sql = "INSERT INTO message (msg_id, msg_chat_id, media, date) VALUES (%s, %s, %s, %s)"
+    val = (msg_id, chat_id, media, date)
+    mycursor.execute(sql, val)
+    mydb.commit()
+# except:
+    # bot.send_message(m.chat.id, 'Ой, щось поломалося')
 
 
 def add_homework(m, date):
+    print('add_homework')
     try:
         chat_id, msg_id = m.chat.id, m.message_id
         sql = "INSERT INTO message (msg_id, msg_chat_id, date) VALUES (%s, %s, %s)"
@@ -165,6 +168,7 @@ def add_homework(m, date):
 
     
 def print_homework(m, date):
+    print('print_homework')
     try:
         mycursor.execute(f"SELECT msg_id, msg_chat_id, media FROM message WHERE date ='{date}'")
         myresult = mycursor.fetchall()
@@ -189,6 +193,8 @@ def print_homework(m, date):
                 
 
 def print_gallery(chat_id, media_id, caption):
+    print('print_gallery')
+
     mycursor.execute(f"SELECT file_id FROM media WHERE media_group_id ='{media_id}'")
     myresult = mycursor.fetchall()
     photo_list = []
