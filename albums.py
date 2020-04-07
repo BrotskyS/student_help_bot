@@ -4,8 +4,6 @@ import json
 from telegram import InputMedia, InputMediaPhoto, InputMediaVideo
 from telegram.ext import DispatcherHandlerStop
 from telegram import ChatAction
-from telegram import ParseMode
-
 
 ALBUM_DICT = {}
 
@@ -61,12 +59,14 @@ def save_album(context):
 			elif update.message.video:
 				file_id = update.message.video.file_id
 				caption = update.message.caption
-				files.append({
-					'message_id': update.message.message_id,
-					'type': 'video',
-					'file_id': file_id,
-					'caption': caption
-				})
+				files.append(
+					{
+						'message_id': update.message.message_id,
+						'type': 'video',
+						'file_id': file_id,
+						'caption': caption
+					}
+				)
 
 		sql = "INSERT INTO media (media_group_id, files) VALUES (%s, %s)"
 		val = (media_group_id, json.dumps(files))
@@ -86,7 +86,7 @@ def save_album_homework(user_id, from_chat_id, media_group_id, date):
 def send_album(chat_id, files, context):
 
 	# ordering album files
-	# files.sort(key=lambda f: f['message_id'])
+	files.sort(key=lambda f: f['message_id'])
 
 	media = []
 	for f in files:
