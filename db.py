@@ -1,15 +1,26 @@
 import mysql.connector
 
-mydb = mysql.connector.connect(
+connection = mysql.connector.connect(
 	host="localhost",
-	user="telebot",
-	passwd="password",
+	user="masterboda",
+	passwd="p@ssword",
 	port='3306',
 )
 
 # Create data base
-mycursor = mydb.cursor()
+mycursor = connection.cursor()
 mycursor.execute('CREATE DATABASE IF NOT EXISTS telebot')
 mycursor.execute('USE telebot')
-mycursor.execute('CREATE TABLE IF NOT EXISTS message( id INT AUTO_INCREMENT PRIMARY KEY, msg_id INT, msg_chat_id INT,media TEXT NULL, date VARCHAR(10))')
-mycursor.execute('CREATE TABLE IF NOT EXISTS media( id INT AUTO_INCREMENT PRIMARY KEY, msg_chat_id INT,media_group_id TEXT NULL,file_id TEXT, caption TEXT NULL)')
+
+mycursor.execute('CREATE TABLE IF NOT EXISTS homework( '
+						+'id INT AUTO_INCREMENT PRIMARY KEY,'
+						+'msg_id INT NULL,'
+						+'user_id INT,'
+						+'from_chat_id INT,'
+						+'media_group_id TEXT NULL,'
+						+'date VARCHAR(10))')
+
+mycursor.execute('CREATE TABLE IF NOT EXISTS media( '
+						+'id INT AUTO_INCREMENT PRIMARY KEY,'
+						+'media_group_id TEXT,'
+						+'files TEXT)')
