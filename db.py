@@ -14,7 +14,7 @@ mycursor.execute('USE telebot')
 
 mycursor.execute('CREATE TABLE IF NOT EXISTS homework( '
 						+'id INT AUTO_INCREMENT PRIMARY KEY,'
-						+'msg_id INT NULL,'
+						+'message_id INT NULL,'
 						+'user_id INT,'
 						+'from_chat_id INT,'
 						+'media_group_id TEXT NULL,'

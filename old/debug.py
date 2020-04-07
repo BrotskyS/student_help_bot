@@ -87,7 +87,7 @@ def m_handler(m):
                 print('Обробляємо додавання дз \n ')
                 add_homework(m, date)
         else:
-            send_message(m.chat.id, 'Введіть дату ДЗ')
+            send_message(m.chat.id, 'Вкажіть дату ДЗ')
 
     print(media, m.caption, '\n\nEND MESSAGE\n\n')
 
@@ -107,7 +107,7 @@ def save_gallery(m):
         mycursor.execute(sql, val)
         mydb.commit()
     else:
-        send_message(chat_id, f'введіть дату (save gallery)\ncaption: {media["caption"]}')
+        send_message(chat_id, f'Вкажіть дату (save gallery)\ncaption: {media["caption"]}')
         print('save gallery match: ', match)
     
     media = {

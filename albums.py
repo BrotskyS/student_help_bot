@@ -1,4 +1,5 @@
 from db import mycursor, connection
+from constants import date_pattern
 import json
 from telegram import InputMedia, InputMediaPhoto, InputMediaVideo
 from telegram.ext import DispatcherHandlerStop
@@ -25,43 +26,60 @@ def collect_album_items(update, context):
 			chat_id=update.message.from_user.id,
 			action=ChatAction.UPLOAD_PHOTO if update.message.photo else ChatAction.UPLOAD_VIDEO
 		)
-		ALBUM_DICT[media_group_id] = [update]
+		ALBUM_DICT[media_group_id] = {
+			'updates': [update],
+			'caption': update.message.caption
+		}
 		# schedule the job
 		context.job_queue.run_once(save_album, 1, context=[media_group_id])
 	else:
-		ALBUM_DICT[media_group_id].append(update)
+		ALBUM_DICT[media_group_id]['updates'].append(update)
 
 
 def save_album(context):
 	media_group_id = context.job.context[0]
-	updates = ALBUM_DICT[media_group_id]
+	updates, caption = ALBUM_DICT[media_group_id]['updates'], ALBUM_DICT[media_group_id]['caption']
+	user_id, from_chat_id = updates[0].message.from_user.id, updates[0].message.chat.id
 
 	# delete from ALBUM_DICT
 	del ALBUM_DICT[media_group_id]
 
-	files = []
-	for update in updates:
-		if update.message.photo:
-			file_id = update.message.photo[-1].file_id
-			caption = update.message.caption
-			files.append({
-				'message_id': update.message.message_id,
-				'type': 'photo',
-				'file_id': file_id,
-				'caption': caption
-			})
-		elif update.message.video:
-			file_id = update.message.video.file_id
-			caption = update.message.caption
-			files.append({
-				'message_id': update.message.message_id,
-				'type': 'video',
-				'file_id': file_id,
-				'caption': caption
-			})
+	match = date_pattern.search(caption)
+	if match:
 
-	sql = "INSERT INTO media (media_group_id, files) VALUES (%s, %s)"
-	val = (media_group_id, json.dumps(files))
+		files = []
+		for update in updates:
+			if update.message.photo:
+				file_id = update.message.photo[-1].file_id
+				caption = update.message.caption
+				files.append({
+					'message_id': update.message.message_id,
+					'type': 'photo',
+					'file_id': file_id,
+					'caption': caption
+				})
+			elif update.message.video:
+				file_id = update.message.video.file_id
+				caption = update.message.caption
+				files.append({
+					'message_id': update.message.message_id,
+					'type': 'video',
+					'file_id': file_id,
+					'caption': caption
+				})
+
+		sql = "INSERT INTO media (media_group_id, files) VALUES (%s, %s)"
+		val = (media_group_id, json.dumps(files))
+		mycursor.execute(sql, val)
+		connection.commit()
+
+		save_album_homework(user_id, from_chat_id, media_group_id, match[1])
+	else:
+		context.bot.send_message(from_chat_id, 'Вкажіть коректну дату дз')
+
+def save_album_homework(user_id, from_chat_id, media_group_id, date):
+	sql = "INSERT INTO homework (user_id, from_chat_id, media_group_id, date) VALUES (%s, %s, %s, %s)"
+	val = (user_id, from_chat_id, media_group_id, date)
 	mycursor.execute(sql, val)
 	connection.commit()
 

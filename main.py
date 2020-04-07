@@ -5,17 +5,16 @@ import logging
 import telegram
 from telegram.ext import ( Updater, CommandHandler, MessageHandler, Filters )
 
+from constants import TOKEN
 import custom_filters
 import albums
+import message
 from db import mycursor, connection
 
 # logging setup
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                      level=logging.INFO)
 
-# basic variables and constants
-TOKEN = '1009237691:AAGbCBSJAYBjVMruuTSCFAmNKRKYScvJ6aA'
-date_pattern = re.compile(r'(\d{2}/\d{2})(?:\s+)?$')
 
 # bot entites
 bot = telegram.Bot(TOKEN)
@@ -35,6 +34,7 @@ def print_albums(update, context):
 
 dispatcher.add_handler(CommandHandler('start', start))
 dispatcher.add_handler(CommandHandler('print_albums', print_albums))
+dispatcher.add_handler(MessageHandler(Filters.text, message.handle_text))
 dispatcher.add_handler(MessageHandler(custom_filters.album, albums.collect_album_items))
 
 updater.start_polling()

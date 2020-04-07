@@ -109,7 +109,7 @@ def photo_handler(m):
             if match:
                 add_homework_gallery(m, match[1])
             else:
-                bot.send_message(m.chat.id, 'Введіть дату ДЗ (add gallery)')
+                bot.send_message(m.chat.id, 'Вкажіть дату ДЗ (add gallery)')
             
     else:
         match = date_pattern.search(m.caption)
@@ -117,7 +117,7 @@ def photo_handler(m):
         if match:
             add_homework(m, match[1])
         else:
-            bot.send_message(m.chat.id, 'Введіть дату ДЗ (add photo)')
+            bot.send_message(m.chat.id, 'Вкажіть дату ДЗ (add photo)')
 
     print('\nEND PHOTO MESSAGE>\n\n')
 
@@ -140,7 +140,7 @@ def text_handler(m):
             add_homework(m, date)
     else:
         print('Invalid message format\n')
-        bot.send_message(m.chat.id, 'Введіть дату ДЗ')
+        bot.send_message(m.chat.id, 'Вкажіть дату ДЗ')
 
     print('\nEND MESSAGE>\n\n')
     # except:
