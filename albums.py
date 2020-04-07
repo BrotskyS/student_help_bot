@@ -45,6 +45,7 @@ def save_album(context):
 			file_id = update.message.photo[-1].file_id
 			caption = update.message.caption
 			files.append({
+				'message_id': update.message.message_id,
 				'type': 'photo',
 				'file_id': file_id,
 				'caption': caption
@@ -53,6 +54,7 @@ def save_album(context):
 			file_id = update.message.video.file_id
 			caption = update.message.caption
 			files.append({
+				'message_id': update.message.message_id,
 				'type': 'video',
 				'file_id': file_id,
 				'caption': caption
@@ -63,4 +65,29 @@ def save_album(context):
 	mycursor.execute(sql, val)
 	connection.commit()
 
+def send_album(chat_id, files, context):
 
+	# ordering album files
+	# files.sort(key=lambda f: f['message_id'])
+
+	media = []
+	for f in files:
+		if f['type'] == 'photo':
+			media.append(
+				InputMediaPhoto(
+					media=f['file_id'],
+					caption=f['caption'],
+				)
+			)
+		elif f['type'] == 'video':
+			media.append(
+				InputMediaVideo(
+					media=f['file_id'],
+					caption=f['caption'],
+				)
+			)
+
+	context.bot.sendMediaGroup(
+		chat_id=chat_id,
+		media=media
+	)
