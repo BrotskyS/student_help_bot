@@ -49,22 +49,22 @@ def save_album(context):
 		for update in updates:
 			if update.message.photo:
 				file_id = update.message.photo[-1].file_id
-				caption = update.message.caption
-				files.append({
-					'message_id': update.message.message_id,
-					'type': 'photo',
-					'file_id': file_id,
-					'caption': caption
-				})
+				files.append(
+					{
+						'message_id': update.message.message_id,
+						'type': 'photo',
+						'file_id': file_id,
+						'caption': update.message.caption
+					}
+				)
 			elif update.message.video:
 				file_id = update.message.video.file_id
-				caption = update.message.caption
 				files.append(
 					{
 						'message_id': update.message.message_id,
 						'type': 'video',
 						'file_id': file_id,
-						'caption': caption
+						'caption': update.message.caption
 					}
 				)
 

@@ -35,6 +35,7 @@ def print_albums(update, context):
 dispatcher.add_handler(CommandHandler('start', start))
 dispatcher.add_handler(CommandHandler('print_albums', print_albums))
 dispatcher.add_handler(MessageHandler(Filters.text, message.handle_text))
+dispatcher.add_handler(MessageHandler((Filters.photo | Filters.audio | Filters.document), message.handle_media))
 dispatcher.add_handler(MessageHandler(custom_filters.album, albums.collect_album_items))
 
 updater.start_polling()

@@ -29,6 +29,23 @@ def handle_text(update, context):
 # 	context.bot.send_message(chat_id, 'Ой, щось поломалося, "handle_text" ')
 
 
+def handle_media(update, context):
+#try:
+	print('<INCOMING MEDIA:\n')
+	chat_id = update.effective_chat.id
+	text = update.message.caption
+
+	match = date_pattern.search(text)
+	if match:
+		print('Handle adding homework\n')
+		save_homework(update.message, match[1], context)
+	else:
+		context.bot.send_message(chat_id, 'Вкажіть дату ДЗ')
+
+	print('\nEND MEDIA>\n\n')
+# except:
+# 	context.bot.send_message(chat_id, 'Ой, щось поломалося, "handle_text" ')
+
 def print_homework(chat_id, date, context):
 	print('print_homework')
 	try:
