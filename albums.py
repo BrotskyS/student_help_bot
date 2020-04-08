@@ -1,5 +1,5 @@
 from db import mycursor, connection
-from constants import date_pattern
+from utils import find_date
 import json
 from telegram import InputMedia, InputMediaPhoto, InputMediaVideo
 from telegram.ext import DispatcherHandlerStop
@@ -42,8 +42,8 @@ def save_album(context):
 	# delete from ALBUM_DICT
 	del ALBUM_DICT[media_group_id]
 
-	match = date_pattern.search(caption)
-	if match:
+	date = find_date(caption)
+	if date:
 
 		files = []
 		for update in updates:
@@ -73,7 +73,7 @@ def save_album(context):
 		mycursor.execute(sql, val)
 		connection.commit()
 
-		save_album_homework(user_id, from_chat_id, media_group_id, match[1])
+		save_album_homework(user_id, from_chat_id, media_group_id, date)
 	else:
 		context.bot.send_message(from_chat_id, 'Вкажіть коректну дату дз')
 

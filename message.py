@@ -1,5 +1,5 @@
 from db import mycursor, connection
-from constants import date_pattern
+from utils import find_date
 from albums import send_album
 import json
 import re
@@ -35,10 +35,10 @@ def handle_media(update, context):
 	chat_id = update.effective_chat.id
 	text = update.message.caption
 
-	match = date_pattern.search(text)
-	if match:
+	date = find_date(text)
+	if date:
 		print('Handle adding homework\n')
-		save_homework(update.message, match[1], context)
+		save_homework(update.message, date, context)
 	else:
 		context.bot.send_message(chat_id, 'Вкажіть дату ДЗ')
 
