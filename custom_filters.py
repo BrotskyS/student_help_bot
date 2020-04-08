@@ -1,4 +1,4 @@
-from telegram.ext import BaseFilter
+from telegram.ext import BaseFilter, Filters
 
 class Album(BaseFilter):
 	def filter(self, message):
@@ -6,3 +6,6 @@ class Album(BaseFilter):
 			return True
 
 album = Album()
+
+# filter for media which is not an album
+media = (Filters.photo | Filters.audio | Filters.document) & (~ album)
