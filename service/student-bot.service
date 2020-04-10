@@ -1,0 +1,19 @@
+[Unit]
+Description=A student help bot deamon
+
+#Config for server
+[Service]
+User=telegram-bot
+WorkingDirectory=/home/telegram-bot/student-help-bot/
+ExecStart=/usr/bin/python3 /home/telegram-bot/student-help-bot/main.py
+#Restart=always
+
+#Config for brutia-pc
+#[Service]
+#User=brutia
+#WorkingDirectory=/home/brutia/Work/python-chat-bot/
+#ExecStart=/usr/bin/python3.6 /home/brutia/Work/python-chat-bot/main.py
+#Restart=always
+
+[Install]
+WantedBy=multi-user.target
