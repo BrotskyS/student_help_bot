@@ -1,6 +1,7 @@
 import re
 import json
 import logging
+import threading
 
 import telegram
 from telegram.ext import ( Updater, CommandHandler, MessageHandler, Filters )
@@ -21,6 +22,15 @@ bot = telegram.Bot(TOKEN)
 updater = Updater(token=TOKEN, use_context=True)
 dispatcher = updater.dispatcher
 
+def shutdown():
+   updater.stop()
+   updater.is_idle = False
+
+def stop(update, context):
+   context.bot.send_message(update.effective_chat.id, "Bot is going to stop.")
+   context.bot.send_message(update.effective_chat.id, "Bye!")
+   threading.Thread(target=shutdown).start()
+
 def start(update, context):
    lines = (
       "Привіт!\n",
@@ -38,6 +48,7 @@ def help_handler(update, contenxt):
    contenxt.bot.send_message(update.effective_chat.id, text)
 
 dispatcher.add_handler(CommandHandler('start', start))
+dispatcher.add_handler(CommandHandler('stop', stop))
 dispatcher.add_handler(CommandHandler('help', help_handler))
 dispatcher.add_handler(MessageHandler(Filters.regex(r'^\s*\d{2}[-\.\/]\d{2}\s*$'), message.print_homework))
 dispatcher.add_handler(MessageHandler(Filters.text, message.handle_text))
