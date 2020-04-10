@@ -30,7 +30,7 @@ def help_handler(update, contenxt):
 
 dispatcher.add_handler(CommandHandler('start', start))
 dispatcher.add_handler(CommandHandler('help', help_handler))
-dispatcher.add_handler(MessageHandler(Filters.regex(r'\s*\d{2}[-\.\/]\d{2}\s*'), message.print_homework))
+dispatcher.add_handler(MessageHandler(Filters.regex(r'^\s*\d{2}[-\.\/]\d{2}\s*$'), message.print_homework))
 dispatcher.add_handler(MessageHandler(Filters.text, message.handle_text))
 dispatcher.add_handler(MessageHandler(custom_filters.album, albums.collect_album_items))
 dispatcher.add_handler(MessageHandler(custom_filters.media, message.handle_media))
