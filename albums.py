@@ -75,7 +75,8 @@ def save_album(context):
 
 		save_album_homework(user_id, from_chat_id, media_group_id, date)
 	else:
-		context.bot.send_message(from_chat_id, 'Вкажіть коректну дату дз')
+		pass
+		# context.bot.send_message(from_chat_id, 'Вкажіть коректну дату дз')
 
 def save_album_homework(user_id, from_chat_id, media_group_id, date):
 	sql = "INSERT INTO homework (user_id, from_chat_id, media_group_id, date) VALUES (%s, %s, %s, %s)"

@@ -22,7 +22,16 @@ updater = Updater(token=TOKEN, use_context=True)
 dispatcher = updater.dispatcher
 
 def start(update, context):
-   context.bot.send_message(chat_id=update.effective_chat.id, text="Hello, I'm bot. How can I help you?")
+   lines = (
+      "Привіт!\n",
+      "Я бот котрий допоможе тобі вести онлайн щоденник у чаті.\n\n",
+      "Для того щоб додати домашнє завдання тобі потрібно в кінці повідомлення вказати дату у форматі <b>дд.мм</b> або <b>дд/мм</b>\n\n",
+      "Приклад: 'Домашнє завдання з математики <b>23.05</b>'\n\n",
+      "Щоб дізнатися домашнє завдання потрібно просто написати дату у тому ж форматі або скористатися командами."
+   )
+
+   text = ''.join(lines)
+   context.bot.send_message(chat_id=update.effective_chat.id, text=text, parse_mode='HTML')
 
 def help_handler(update, contenxt):
    text = "/hw or /homework - дізнатися домашку на сьогодні\n/tutorial - дізнатися, як працює бот"
