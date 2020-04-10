@@ -1,11 +1,14 @@
-This is a student help bot which can manage your homework.
+<h2>This is a student help bot which can manage your homework.</h2>
 
 Run this bot as daemon:
-	-	put ./service/student-bot.service to /lib/systemd/system/
-	-	set your User=your_username, WorkingDirectory=dir_to_your_bot
-	-	set path to your python3
-	-	'sudo service student-bot start' - start your bot
-		'service student-bot stop' - to stop
-		'service student-bot restart' - to restart
-		'service student-bot status' - to see status
+<ul>
+	<li>put <b>./service/student-bot.service</b> to <b>/lib/systemd/system/</b></li>
+	<li>set your <i>User=your_username</i>, <i>WorkingDirectory=dir_to_your_bot</i></li>
+	<li>set path to your python3</li>
+</ul>
+	
+<i>sudo service student-bot start</i> - start your bot<br>
+<i>service student-bot stop</i> - to stop<br>
+<i>service student-bot restart</i> - to restart<br>
+<i>service student-bot status</i> - to see status<br>
 
