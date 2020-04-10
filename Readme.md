@@ -7,8 +7,8 @@ Run this bot as daemon:
 	<li>set path to your python3</li>
 </ul>
 	
-<i style="color: #2D9CDB">sudo service student-bot start</i> - start your bot<br>
-<i style="color: #2D9CDB">service student-bot stop</i> - to stop<br>
-<i style="color: #2D9CDB">service student-bot restart</i> - to restart<br>
-<i style="color: #2D9CDB">service student-bot status</i> - to see status<br>
+<b>sudo service student-bot start</b> - start your bot<br>
+<b>service student-bot stop</b> - to stop<br>
+<b>service student-bot restart</b> - to restart<br>
+<b>service student-bot status</b> - to see status<br>
 
