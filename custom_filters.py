@@ -8,4 +8,4 @@ class Album(BaseFilter):
 album = Album()
 
 # filter for media which is not an album
-media = (Filters.photo | Filters.audio | Filters.document) & (~ album)
+media = (Filters.photo | Filters.audio | Filters.video | Filters.document) & (~ album)
