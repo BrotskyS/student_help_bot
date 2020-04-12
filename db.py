@@ -19,7 +19,7 @@ mycursor.execute(
 	id INT AUTO_INCREMENT PRIMARY KEY,
 	message_id INT NULL,
 	user_id INT,
-	from_chat_id INT,
+	from_chat_id BIGINT,
 	media_group_id TEXT NULL,
 	date VARCHAR(10))
 	"""
