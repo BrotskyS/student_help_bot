@@ -4,8 +4,8 @@ Description=A student help bot deamon
 #Config for server
 [Service]
 User=telegram-bot
-WorkingDirectory=/home/telegram-bot/student-help-bot/
-ExecStart=/usr/bin/python3 /home/telegram-bot/student-help-bot/main.py
+WorkingDirectory=/home/brotsky/programing/student-help-bot/
+ExecStart=/usr/bin/python3 /home/brotsky/programing/student-help-bot/main.py
 #Restart=always
 
 #Config for brutia-pc

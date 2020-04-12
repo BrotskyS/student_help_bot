@@ -11,7 +11,7 @@ import custom_filters
 import albums
 import message
 from db import mycursor, connection
-
+from markup import private_chat_kb
 # logging setup
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                      level=logging.INFO)
@@ -42,6 +42,10 @@ def start(update, context):
 
    text = ''.join(lines)
    context.bot.send_message(chat_id=update.effective_chat.id, text=text, parse_mode='HTML')
+   text_button = 'Перейти в приватний чат'
+   keyboard = private_chat_kb()
+   context.bot.send_message(chat_id=update.effective_chat.id, text=text_button, reply_markup=keyboard)
+
 
 def help_handler(update, contenxt):
    text = "/hw or /homework - дізнатися домашку на сьогодні\n/tutorial - дізнатися, як працює бот"
