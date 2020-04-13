@@ -1,19 +1,35 @@
 [Unit]
 Description=A student help bot deamon
 
-#Config for server
+
+# TEMPLATE
+
 [Service]
-User=telegram-bot
-WorkingDirectory=/home/brotsky/programing/student-help-bot/
-ExecStart=/usr/bin/python3 /home/brotsky/programing/student-help-bot/main.py
-#Restart=always
+User=
+WorkingDirectory=
+ExecStart=/usr/bin/python3 /path_to_script/.py
+StartLimitBurst=5
+Restart=always
+RestartSec=30
+
+
+#Config for brotsky
+# [Service]
+# User=brotsky
+# WorkingDirectory=/home/brotsky/programing/student-help-bot/
+# ExecStart=/usr/bin/python3 /home/brotsky/programing/student-help-bot/main.py
+# StartLimitBurst=5
+# Restart=always
+# RestartSec=30
 
 #Config for brutia-pc
 #[Service]
 #User=brutia
 #WorkingDirectory=/home/brutia/Work/python-chat-bot/
 #ExecStart=/usr/bin/python3.6 /home/brutia/Work/python-chat-bot/main.py
-#Restart=always
+# StartLimitBurst=5
+# Restart=always
+# RestartSec=30
 
 [Install]
 WantedBy=multi-user.target
