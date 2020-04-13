@@ -17,8 +17,8 @@ mycursor.execute(
 	"""
 	CREATE TABLE IF NOT EXISTS homework( 
 	id INT AUTO_INCREMENT PRIMARY KEY,
-	message_id INT NULL,
-	user_id INT,
+	message_id BIGINT NULL,
+	user_id BIGINT,
 	from_chat_id BIGINT,
 	media_group_id TEXT NULL,
 	date VARCHAR(10))
