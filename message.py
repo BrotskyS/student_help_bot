@@ -7,14 +7,23 @@ import re
 def handle_text(update, context):
 # try:
 	print('<INCOMING MESSAGE:\n')
+	message = update.message or update.edited_message
 	chat_id = update.effective_chat.id
 
-	text = update.message.text
+	text = message.text
 	date = find_date(text)
 	
 	if date:
+		if message.edit_date: #check if message was edited
+			mycursor.execute(f'SELECT COUNT(id) FROM homework WHERE message_id = {message.message_id}')
+			count = mycursor.fetchone()[0]
+
+			if count > 0:
+				print('Homework already added')
+				return
+
 		print('Handle adding homework\n')
-		save_homework(update.message, date, context)
+		save_homework(message, date, context)
 	else:
 		pass
 		# print('Invalid message format\n')
@@ -28,13 +37,23 @@ def handle_text(update, context):
 def handle_media(update, context):
 #try:
 	print('<INCOMING MEDIA:\n')
+	message = update.message or update.edited_message
 	chat_id = update.effective_chat.id
-	text = update.message.caption
 
+	text = update.message.caption
 	date = find_date(text)
+	
 	if date:
+		if message.edit_date: #check if message was edited
+			mycursor.execute(f'SELECT COUNT(id) FROM homework WHERE message_id = {message.message_id}')
+			count = mycursor.fetchone()[0]
+
+			if count > 0:
+				print('Homework already added')
+				return
+
 		print('Handle adding homework\n')
-		save_homework(update.message, date, context)
+		save_homework(message, date, context)
 	else:
 		pass
 		#context.bot.send_message(chat_id, 'Вкажіть дату ДЗ')
